@@ -6,8 +6,8 @@
 
 ## Страницы
 
-- `/` — список новостей из public/articles.json.
-- `/galery/{index}` — полное изображение новости; нумерация записей с 0.
+- `/` — список статей из базы данных, сначала самые свежие.
+- `/galery/{article}` — полное изображение статьи; параметр — её ID в базе.
 - `/about` — информация о проекте.
 - `/contacts` — контакты автора из массива в routes/web.php.
 - `/signin` — форма регистрации: имя, email, пароль. POST проверяет данные и возвращает JSON с именем и email; сохранение пользователя будет добавлено в ЛР №6.
@@ -30,10 +30,11 @@ docker compose run --rm --no-deps frontend npm ci
 docker compose run --rm --no-deps app php artisan key:generate
 docker compose run --rm --no-deps app touch /var/lib/laravel/database.sqlite
 docker compose run --rm --no-deps app php artisan migrate
+docker compose run --rm --no-deps app php artisan db:seed
 docker compose up -d
 ```
 
-Копирование .env и генерация ключа нужны при новом развёртывании. Для уже настроенного проекта использовать следующий раздел.
+Копирование .env и генерация ключа нужны при новом развёртывании. Seeder добавляет 10 тестовых статей с помощью Faker; повторный запуск добавит ещё 10. Для уже настроенного проекта использовать следующий раздел.
 
 ## Обычная работа
 

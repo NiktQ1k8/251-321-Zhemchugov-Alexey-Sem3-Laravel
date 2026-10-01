@@ -1,13 +1,13 @@
 <?php
 
+use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\MainController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [MainController::class, 'index'])->name('home');
+Route::get('/', [ArticleController::class, 'index'])->name('home');
 
-Route::get('/galery/{index}', [MainController::class, 'galery'])
-    ->whereNumber('index')
+Route::get('/galery/{article}', [ArticleController::class, 'galery'])
+    ->whereNumber('article')
     ->name('galery');
 
 Route::get('/signin', [AuthController::class, 'create'])->name('signin');
