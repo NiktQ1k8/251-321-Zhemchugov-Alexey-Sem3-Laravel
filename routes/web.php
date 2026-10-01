@@ -4,7 +4,11 @@ use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
+Route::pattern('article', '[0-9]+');
+
 Route::get('/', [ArticleController::class, 'index'])->name('home');
+
+Route::resource('articles', ArticleController::class);
 
 Route::get('/galery/{article}', [ArticleController::class, 'galery'])
     ->whereNumber('article')

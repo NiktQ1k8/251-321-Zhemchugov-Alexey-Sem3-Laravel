@@ -23,7 +23,10 @@
         </header>
 
         <main class="mx-auto w-full max-w-5xl flex-1 px-6 py-12 sm:py-20">
-            <h1 class="mb-6 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">@yield('heading')</h1>
+            <h1 class="mb-6 wrap-break-word text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">@yield('heading')</h1>
+            @if (session('status'))
+                <p role="status" class="mb-6 rounded-md bg-green-100 px-4 py-3 text-green-800">{{ session('status') }}</p>
+            @endif
             @yield('content')
         </main>
 

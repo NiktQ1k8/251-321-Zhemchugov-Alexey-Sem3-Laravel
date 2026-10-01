@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Галерея')
-@section('heading', $article->name)
+@section('heading', e($article->name))
 
 @section('content')
     <img src="{{ asset($article->full_image) }}" alt="{{ $article->name }}" class="h-auto max-w-full rounded-lg">
