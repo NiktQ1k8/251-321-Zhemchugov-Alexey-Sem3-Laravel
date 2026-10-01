@@ -1,0 +1,33 @@
+name: laravel-news
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: app
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - .:/var/www/html
+      - vendor:/var/www/html/vendor
+      - database:/var/lib/laravel
+    command: php artisan serve --host=0.0.0.0 --port=8000
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: frontend
+    ports:
+      - "127.0.0.1:5173:5173"
+    volumes:
+      - .:/var/www/html
+      - node_modules:/var/www/html/node_modules
+      - vendor:/var/www/html/vendor:ro
+    command: npm run dev -- --host 0.0.0.0
+
+volumes:
+  vendor:
+  node_modules:
+  database:

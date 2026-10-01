@@ -1,0 +1,11 @@
+.git
+.env
+.env.*
+vendor
+node_modules
+docs
+Задания
+storage
+public/build
+public/hot
+.laravel-setup
