@@ -17,6 +17,7 @@
                     <a href="{{ route('home') }}" class="hover:text-blue-700" @if(request()->routeIs('home')) aria-current="page" @endif>Главная</a>
                     <a href="{{ route('about') }}" class="hover:text-blue-700" @if(request()->routeIs('about')) aria-current="page" @endif>О нас</a>
                     <a href="{{ route('contacts') }}" class="hover:text-blue-700" @if(request()->routeIs('contacts')) aria-current="page" @endif>Контакты</a>
+                    <a href="{{ route('signin') }}" class="hover:text-blue-700" @if(request()->routeIs('signin')) aria-current="page" @endif>Регистрация</a>
                 </nav>
             </div>
         </header>
