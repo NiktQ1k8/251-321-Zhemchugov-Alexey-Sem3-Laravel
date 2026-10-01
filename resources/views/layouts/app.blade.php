@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>@yield('title') — {{ config('app.name') }}</title>
+        @fonts
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    </head>
+    <body class="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-800">
+        <header class="border-b border-slate-200 bg-white">
+            <div class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 py-5">
+                <a href="{{ route('home') }}" class="text-xl font-semibold text-slate-900">
+                    {{ config('app.name') }}
+                </a>
+                <nav aria-label="Основная навигация" class="flex flex-wrap gap-6 text-sm font-medium">
+                    <a href="{{ route('home') }}" class="hover:text-blue-700" @if(request()->routeIs('home')) aria-current="page" @endif>Главная</a>
+                    <a href="{{ route('about') }}" class="hover:text-blue-700" @if(request()->routeIs('about')) aria-current="page" @endif>О нас</a>
+                    <a href="{{ route('contacts') }}" class="hover:text-blue-700" @if(request()->routeIs('contacts')) aria-current="page" @endif>Контакты</a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="mx-auto w-full max-w-5xl flex-1 px-6 py-12 sm:py-20">
+            <h1 class="mb-6 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">@yield('heading')</h1>
+            @yield('content')
+        </main>
+
+        <footer class="border-t border-slate-200 bg-white">
+            <div class="mx-auto max-w-5xl px-6 py-5 text-sm text-slate-600">
+                Жемчугов Алексей Иванович · Группа 251-321
+            </div>
+        </footer>
+    </body>
+</html>
