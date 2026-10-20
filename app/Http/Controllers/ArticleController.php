@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\NewArticleMail;
 use App\Models\Article;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 class ArticleController extends Controller
 {
@@ -33,7 +37,27 @@ class ArticleController extends Controller
 
         $article = Article::create($this->validateArticle($request));
 
-        return redirect()->route('articles.show', $article)->with('status', 'Статья создана.');
+        $response = redirect()->route('articles.show', $article)->with('status', 'Статья создана.');
+        $recipient = config('mail.moderator_address');
+
+        if (! filter_var($recipient, FILTER_VALIDATE_EMAIL)
+            || (config('mail.default') === 'smtp'
+                && (! config('mail.mailers.smtp.username') || ! config('mail.mailers.smtp.password')))) {
+            return $response->with('warning', 'Письмо модератору не отправлено: почта ещё не настроена.');
+        }
+
+        try {
+            Mail::to($recipient)->send(new NewArticleMail($article));
+        } catch (TransportExceptionInterface $exception) {
+            Log::warning('Не удалось отправить письмо о новой статье.', [
+                'article_id' => $article->id,
+                'exception' => $exception::class,
+            ]);
+
+            return $response->with('warning', 'Статья сохранена, но письмо модератору отправить не удалось. Повторно создавать статью не нужно.');
+        }
+
+        return $response;
     }
 
     public function show(Article $article): View

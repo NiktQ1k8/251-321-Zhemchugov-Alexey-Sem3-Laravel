@@ -39,6 +39,9 @@
             @if (session('status'))
                 <p role="status" class="mb-6 rounded-md bg-green-100 px-4 py-3 text-green-800">{{ session('status') }}</p>
             @endif
+            @if (session('warning'))
+                <p role="alert" class="mb-6 rounded-md bg-amber-100 px-4 py-3 text-amber-900">{{ session('warning') }}</p>
+            @endif
             @yield('content')
         </main>
 
