@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Article;
+use App\Models\Comment;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+class CommentController extends Controller
+{
+    public function store(Request $request, Article $article): RedirectResponse
+    {
+        $article->comments()->create($this->validateComment($request));
+
+        return redirect()->route('articles.show', $article)->withFragment('comments')
+            ->with('status', 'Комментарий добавлен.');
+    }
+
+    public function edit(Article $article, Comment $comment): View
+    {
+        return view('comments.edit', ['article' => $article, 'comment' => $comment]);
+    }
+
+    public function update(Request $request, Article $article, Comment $comment): RedirectResponse
+    {
+        $comment->update($this->validateComment($request));
+
+        return redirect()->route('articles.show', $article)->withFragment('comments')
+            ->with('status', 'Комментарий обновлён.');
+    }
+
+    public function destroy(Article $article, Comment $comment): RedirectResponse
+    {
+        $comment->delete();
+
+        return redirect()->route('articles.show', $article)->withFragment('comments')
+            ->with('status', 'Комментарий удалён.');
+    }
+
+    private function validateComment(Request $request): array
+    {
+        return $request->validate([
+            'body' => ['required', 'string', 'max:5000'],
+        ], [
+            'body.required' => 'Введите текст комментария.',
+            'body.string' => 'Текст комментария должен быть строкой.',
+            'body.max' => 'Комментарий должен содержать не более :max символов.',
+        ]);
+    }
+}

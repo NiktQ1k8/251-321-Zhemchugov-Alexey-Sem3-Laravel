@@ -31,6 +31,8 @@ class ArticleController extends Controller
 
     public function show(Article $article): View
     {
+        $article->load(['comments' => fn ($query) => $query->latest('id')]);
+
         return view('articles.show', ['article' => $article]);
     }
 
