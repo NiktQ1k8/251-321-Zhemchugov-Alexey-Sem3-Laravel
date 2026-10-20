@@ -13,11 +13,20 @@
                 <a href="{{ route('home') }}" class="text-xl font-semibold text-slate-900">
                     {{ config('app.name') }}
                 </a>
-                <nav aria-label="Основная навигация" class="flex flex-wrap gap-6 text-sm font-medium">
+                <nav aria-label="Основная навигация" class="flex flex-wrap items-center gap-6 text-sm font-medium">
                     <a href="{{ route('home') }}" class="hover:text-blue-700" @if(request()->routeIs('home')) aria-current="page" @endif>Главная</a>
                     <a href="{{ route('about') }}" class="hover:text-blue-700" @if(request()->routeIs('about')) aria-current="page" @endif>О нас</a>
                     <a href="{{ route('contacts') }}" class="hover:text-blue-700" @if(request()->routeIs('contacts')) aria-current="page" @endif>Контакты</a>
-                    <a href="{{ route('signin') }}" class="hover:text-blue-700" @if(request()->routeIs('signin')) aria-current="page" @endif>Регистрация</a>
+                    @guest
+                        <a href="{{ route('signin') }}" class="hover:text-blue-700" @if(request()->routeIs('signin')) aria-current="page" @endif>Регистрация</a>
+                        <a href="{{ route('login') }}" class="hover:text-blue-700" @if(request()->routeIs('login')) aria-current="page" @endif>Вход</a>
+                    @else
+                        <span class="max-w-48 wrap-break-word text-slate-600">{{ auth()->user()->name }}</span>
+                        <form action="{{ route('logout') }}" method="post">
+                            @csrf
+                            <button type="submit" class="hover:text-blue-700">Выйти</button>
+                        </form>
+                    @endguest
                 </nav>
             </div>
         </header>

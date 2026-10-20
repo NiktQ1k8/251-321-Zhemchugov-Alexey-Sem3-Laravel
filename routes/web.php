@@ -10,18 +10,26 @@ Route::pattern('comment', '[0-9]+');
 
 Route::get('/', [ArticleController::class, 'index'])->name('home');
 
-Route::resource('articles', ArticleController::class);
+Route::resource('articles', ArticleController::class)
+    ->middlewareFor(['create', 'store', 'edit', 'update', 'destroy'], 'auth:sanctum');
 
 Route::resource('articles.comments', CommentController::class)
     ->only(['store', 'edit', 'update', 'destroy'])
-    ->scoped();
+    ->scoped()
+    ->middleware('auth:sanctum');
 
 Route::get('/galery/{article}', [ArticleController::class, 'galery'])
     ->whereNumber('article')
     ->name('galery');
 
-Route::get('/signin', [AuthController::class, 'create'])->name('signin');
-Route::post('/signin', [AuthController::class, 'registration'])->name('registration');
+Route::middleware('guest')->group(function () {
+    Route::get('/signin', [AuthController::class, 'create'])->name('signin');
+    Route::post('/signin', [AuthController::class, 'registration'])->name('registration');
+    Route::get('/login', [AuthController::class, 'login'])->name('login');
+    Route::post('/login', [AuthController::class, 'authenticate'])->middleware('throttle:6,1')->name('authenticate');
+});
+
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum')->name('logout');
 
 Route::get('/about', function () {
     return view('about');

@@ -38,6 +38,7 @@
             @enderror
         </div>
 
-        <button type="submit" class="rounded-md bg-blue-700 px-5 py-3 font-medium text-white hover:bg-blue-800 focus:outline-2 focus:outline-offset-2 focus:outline-blue-700">Отправить</button>
+        <button type="submit" class="rounded-md bg-blue-700 px-5 py-3 font-medium text-white hover:bg-blue-800 focus:outline-2 focus:outline-offset-2 focus:outline-blue-700">Зарегистрироваться</button>
+        <p class="text-sm text-slate-600">Уже есть аккаунт? <a href="{{ route('login') }}" class="text-blue-700 underline underline-offset-4">Войти</a></p>
     </form>
 @endsection
