@@ -36,6 +36,7 @@
 
         @forelse ($article->comments as $comment)
             <article class="space-y-3 rounded-lg border border-slate-200 bg-white p-5">
+                <p class="wrap-break-word font-medium">Автор: {{ $comment->user?->name ?? 'Автор неизвестен' }}</p>
                 <time datetime="{{ $comment->created_at->toIso8601String() }}" class="text-sm text-slate-500">{{ $comment->created_at->format('d.m.Y H:i') }}</time>
                 <p class="whitespace-pre-line wrap-break-word text-slate-700">{{ $comment->body }}</p>
                 <div class="flex flex-wrap items-center gap-4">

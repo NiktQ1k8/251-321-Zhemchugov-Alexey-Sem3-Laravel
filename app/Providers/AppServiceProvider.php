@@ -34,7 +34,12 @@ class AppServiceProvider extends ServiceProvider
             ? Response::allow()
             : Response::deny('Добавлять комментарии могут только читатели и модераторы.'));
 
-        Gate::define('update-comment', fn (User $user, Comment $comment) => Response::deny('Редактировать комментарии может только модератор.'));
-        Gate::define('delete-comment', fn (User $user, Comment $comment) => Response::deny('Удалять комментарии может только модератор.'));
+        Gate::define('update-comment', fn (User $user, Comment $comment) => $user->id === $comment->user_id
+            ? Response::allow()
+            : Response::deny('Редактировать комментарий может только автор или модератор.'));
+
+        Gate::define('delete-comment', fn (User $user, Comment $comment) => $user->id === $comment->user_id
+            ? Response::allow()
+            : Response::deny('Удалять комментарий может только автор или модератор.'));
     }
 }

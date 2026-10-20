@@ -15,7 +15,9 @@ class CommentController extends Controller
     {
         Gate::authorize('create-comment');
 
-        $article->comments()->create($this->validateComment($request));
+        $comment = new Comment($this->validateComment($request));
+        $comment->user()->associate($request->user());
+        $article->comments()->save($comment);
 
         return redirect()->route('articles.show', $article)->withFragment('comments')
             ->with('status', 'Комментарий добавлен.');
