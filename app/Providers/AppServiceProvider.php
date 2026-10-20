@@ -30,6 +30,8 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::before(fn (User $user) => $user->hasRole(Role::MODERATOR) ? true : null);
 
+        Gate::define('moderate-comments', fn (User $user) => Response::deny('Модерация комментариев доступна только модератору.'));
+
         Gate::define('create-comment', fn (User $user) => $user->hasRole(Role::READER)
             ? Response::allow()
             : Response::deny('Добавлять комментарии могут только читатели и модераторы.'));

@@ -20,6 +20,9 @@
                     @can('create', \App\Models\Article::class)
                         <a href="{{ route('articles.create') }}" class="hover:text-blue-700" @if(request()->routeIs('articles.create')) aria-current="page" @endif>Создать новость</a>
                     @endcan
+                    @can('moderate-comments')
+                        <a href="{{ route('comments.moderation') }}" class="hover:text-blue-700" @if(request()->routeIs('comments.*')) aria-current="page" @endif>Модерация комментариев</a>
+                    @endcan
                     @guest
                         <a href="{{ route('signin') }}" class="hover:text-blue-700" @if(request()->routeIs('signin')) aria-current="page" @endif>Регистрация</a>
                         <a href="{{ route('login') }}" class="hover:text-blue-700" @if(request()->routeIs('login')) aria-current="page" @endif>Вход</a>

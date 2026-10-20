@@ -14,6 +14,11 @@ class Comment extends Model
     /** @use HasFactory<CommentFactory> */
     use HasFactory;
 
+    protected function casts(): array
+    {
+        return ['is_approved' => 'boolean'];
+    }
+
     public function article(): BelongsTo
     {
         return $this->belongsTo(Article::class);

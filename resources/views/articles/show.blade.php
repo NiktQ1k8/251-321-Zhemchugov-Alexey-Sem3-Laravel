@@ -58,6 +58,7 @@
 
         @can('create-comment')
             <h3 class="text-xl font-semibold">Добавить комментарий</h3>
+            <p class="text-slate-600">Комментарий появится после проверки модератором.</p>
             <form action="{{ route('articles.comments.store', $article) }}" method="post" class="space-y-4">
                 @csrf
                 @include('comments._form', ['comment' => new \App\Models\Comment])

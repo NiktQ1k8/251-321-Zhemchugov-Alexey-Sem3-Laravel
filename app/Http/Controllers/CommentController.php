@@ -20,7 +20,7 @@ class CommentController extends Controller
         $article->comments()->save($comment);
 
         return redirect()->route('articles.show', $article)->withFragment('comments')
-            ->with('status', 'Комментарий добавлен.');
+            ->with('status', 'Комментарий добавлен и ожидает модерации.');
     }
 
     public function edit(Article $article, Comment $comment): View
@@ -34,10 +34,17 @@ class CommentController extends Controller
     {
         Gate::authorize('update-comment', $comment);
 
-        $comment->update($this->validateComment($request));
+        $comment->fill($this->validateComment($request));
+        $textChanged = $comment->isDirty('body');
+
+        if ($textChanged) {
+            $comment->is_approved = false;
+        }
+
+        $comment->save();
 
         return redirect()->route('articles.show', $article)->withFragment('comments')
-            ->with('status', 'Комментарий обновлён.');
+            ->with('status', $textChanged ? 'Комментарий обновлён и ожидает модерации.' : 'Комментарий не изменён.');
     }
 
     public function destroy(Article $article, Comment $comment): RedirectResponse

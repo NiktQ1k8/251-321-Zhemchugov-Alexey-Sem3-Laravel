@@ -3,6 +3,7 @@
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\CommentModerationController;
 use Illuminate\Support\Facades\Route;
 
 Route::pattern('article', '[0-9]+');
@@ -17,6 +18,12 @@ Route::resource('articles.comments', CommentController::class)
     ->only(['store', 'edit', 'update', 'destroy'])
     ->scoped()
     ->middleware('auth:sanctum');
+
+Route::middleware(['auth:sanctum', 'can:moderate-comments'])->group(function () {
+    Route::get('/moderation/comments', [CommentModerationController::class, 'index'])->name('comments.moderation');
+    Route::patch('/moderation/comments/{comment}/approve', [CommentModerationController::class, 'approve'])->name('comments.approve');
+    Route::delete('/moderation/comments/{comment}/reject', [CommentModerationController::class, 'reject'])->name('comments.reject');
+});
 
 Route::get('/galery/{article}', [ArticleController::class, 'galery'])
     ->whereNumber('article')

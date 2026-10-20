@@ -5,6 +5,7 @@
 
 @section('content')
     <p class="mb-6 wrap-break-word text-slate-600">Статья: {{ $article->name }}</p>
+    <p class="mb-6 text-slate-600">После изменения текста комментарий отправится на повторную модерацию.</p>
 
     <form action="{{ route('articles.comments.update', [$article, $comment]) }}" method="post" class="max-w-2xl space-y-6">
         @csrf
