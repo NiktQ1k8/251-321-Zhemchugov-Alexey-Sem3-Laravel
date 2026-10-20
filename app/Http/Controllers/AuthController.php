@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -35,7 +36,9 @@ class AuthController extends Controller
             'password' => 'пароль',
         ]);
 
-        User::create($data);
+        $user = new User($data);
+        $user->role()->associate(Role::where('name', Role::READER)->firstOrFail());
+        $user->save();
 
         return redirect()->route('login')->with('status', 'Регистрация завершена. Войдите в свой аккаунт.');
     }

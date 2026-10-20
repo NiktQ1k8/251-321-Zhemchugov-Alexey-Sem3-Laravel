@@ -19,14 +19,16 @@
 
     <div class="mt-8 flex flex-wrap items-center gap-5">
         <a href="{{ route('home') }}" class="text-blue-700 underline underline-offset-4">К списку новостей</a>
-        @auth
+        @can('update', $article)
             <a href="{{ route('articles.edit', $article) }}" class="text-blue-700 underline underline-offset-4">Редактировать</a>
+        @endcan
+        @can('delete', $article)
             <form action="{{ route('articles.destroy', $article) }}" method="post" onsubmit="return confirm('Удалить статью и все её комментарии?')">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="rounded-md bg-red-700 px-4 py-2 font-medium text-white hover:bg-red-800">Удалить</button>
             </form>
-        @endauth
+        @endcan
     </div>
 
     <section id="comments" class="mt-10 max-w-3xl space-y-6 border-t border-slate-200 pt-8">
@@ -36,29 +38,33 @@
             <article class="space-y-3 rounded-lg border border-slate-200 bg-white p-5">
                 <time datetime="{{ $comment->created_at->toIso8601String() }}" class="text-sm text-slate-500">{{ $comment->created_at->format('d.m.Y H:i') }}</time>
                 <p class="whitespace-pre-line wrap-break-word text-slate-700">{{ $comment->body }}</p>
-                @auth
-                    <div class="flex flex-wrap items-center gap-4">
+                <div class="flex flex-wrap items-center gap-4">
+                    @can('update-comment', $comment)
                         <a href="{{ route('articles.comments.edit', [$article, $comment]) }}" class="text-blue-700 underline underline-offset-4">Редактировать комментарий</a>
+                    @endcan
+                    @can('delete-comment', $comment)
                         <form action="{{ route('articles.comments.destroy', [$article, $comment]) }}" method="post" onsubmit="return confirm('Удалить этот комментарий?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="text-red-700 underline underline-offset-4">Удалить комментарий</button>
                         </form>
-                    </div>
-                @endauth
+                    @endcan
+                </div>
             </article>
         @empty
             <p class="text-slate-600">Комментариев пока нет.</p>
         @endforelse
 
-        @auth
+        @can('create-comment')
             <h3 class="text-xl font-semibold">Добавить комментарий</h3>
             <form action="{{ route('articles.comments.store', $article) }}" method="post" class="space-y-4">
                 @csrf
                 @include('comments._form', ['comment' => new \App\Models\Comment])
             </form>
         @else
-            <p class="text-slate-600"><a href="{{ route('login') }}" class="text-blue-700 underline underline-offset-4">Войдите</a>, чтобы добавить комментарий.</p>
-        @endauth
+            @guest
+                <p class="text-slate-600"><a href="{{ route('login') }}" class="text-blue-700 underline underline-offset-4">Войдите</a>, чтобы добавить комментарий.</p>
+            @endguest
+        @endcan
     </section>
 @endsection

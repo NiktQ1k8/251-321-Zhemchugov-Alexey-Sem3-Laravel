@@ -17,6 +17,9 @@
                     <a href="{{ route('home') }}" class="hover:text-blue-700" @if(request()->routeIs('home')) aria-current="page" @endif>Главная</a>
                     <a href="{{ route('about') }}" class="hover:text-blue-700" @if(request()->routeIs('about')) aria-current="page" @endif>О нас</a>
                     <a href="{{ route('contacts') }}" class="hover:text-blue-700" @if(request()->routeIs('contacts')) aria-current="page" @endif>Контакты</a>
+                    @can('create', \App\Models\Article::class)
+                        <a href="{{ route('articles.create') }}" class="hover:text-blue-700" @if(request()->routeIs('articles.create')) aria-current="page" @endif>Создать новость</a>
+                    @endcan
                     @guest
                         <a href="{{ route('signin') }}" class="hover:text-blue-700" @if(request()->routeIs('signin')) aria-current="page" @endif>Регистрация</a>
                         <a href="{{ route('login') }}" class="hover:text-blue-700" @if(request()->routeIs('login')) aria-current="page" @endif>Вход</a>

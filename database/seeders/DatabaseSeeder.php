@@ -15,6 +15,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call([RoleSeeder::class, ModeratorSeeder::class]);
+
         Article::factory()->count(10)->hasComments(3)->create();
     }
 }

@@ -4,9 +4,9 @@
 @section('heading', 'Новости')
 
 @section('content')
-    @auth
+    @can('create', \App\Models\Article::class)
         <a href="{{ route('articles.create') }}" class="mb-8 inline-block rounded-md bg-blue-700 px-5 py-3 font-medium text-white hover:bg-blue-800">Добавить статью</a>
-    @endauth
+    @endcan
     <div class="grid gap-8 sm:grid-cols-2">
         @forelse ($articles as $article)
             <article class="wrap-break-word overflow-hidden rounded-lg border border-slate-200 bg-white">

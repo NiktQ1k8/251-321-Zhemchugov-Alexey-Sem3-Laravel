@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -12,6 +13,8 @@ class ArticleController extends Controller
 {
     public function index(): View
     {
+        Gate::authorize('viewAny', Article::class);
+
         $articles = Article::query()->orderByDesc('published_at')->orderByDesc('id')->paginate(5);
 
         return view('articles.index', ['articles' => $articles]);
@@ -19,11 +22,15 @@ class ArticleController extends Controller
 
     public function create(): View
     {
+        Gate::authorize('create', Article::class);
+
         return view('articles.create', ['article' => new Article(['published_at' => today()])]);
     }
 
     public function store(Request $request): RedirectResponse
     {
+        Gate::authorize('create', Article::class);
+
         $article = Article::create($this->validateArticle($request));
 
         return redirect()->route('articles.show', $article)->with('status', 'Статья создана.');
@@ -31,6 +38,8 @@ class ArticleController extends Controller
 
     public function show(Article $article): View
     {
+        Gate::authorize('view', $article);
+
         $article->load(['comments' => fn ($query) => $query->latest('id')]);
 
         return view('articles.show', ['article' => $article]);
@@ -38,11 +47,15 @@ class ArticleController extends Controller
 
     public function edit(Article $article): View
     {
+        Gate::authorize('update', $article);
+
         return view('articles.edit', ['article' => $article]);
     }
 
     public function update(Request $request, Article $article): RedirectResponse
     {
+        Gate::authorize('update', $article);
+
         $article->update($this->validateArticle($request));
 
         return redirect()->route('articles.show', $article)->with('status', 'Статья обновлена.');
@@ -50,6 +63,8 @@ class ArticleController extends Controller
 
     public function destroy(Article $article): RedirectResponse
     {
+        Gate::authorize('delete', $article);
+
         $article->delete();
 
         return redirect()->route('home')->with('status', 'Статья удалена.');
@@ -57,6 +72,8 @@ class ArticleController extends Controller
 
     public function galery(Article $article): View
     {
+        Gate::authorize('view', $article);
+
         abort_unless($article->full_image, 404);
 
         return view('galery', ['article' => $article]);

@@ -6,12 +6,15 @@ use App\Models\Article;
 use App\Models\Comment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class CommentController extends Controller
 {
     public function store(Request $request, Article $article): RedirectResponse
     {
+        Gate::authorize('create-comment');
+
         $article->comments()->create($this->validateComment($request));
 
         return redirect()->route('articles.show', $article)->withFragment('comments')
@@ -20,11 +23,15 @@ class CommentController extends Controller
 
     public function edit(Article $article, Comment $comment): View
     {
+        Gate::authorize('update-comment', $comment);
+
         return view('comments.edit', ['article' => $article, 'comment' => $comment]);
     }
 
     public function update(Request $request, Article $article, Comment $comment): RedirectResponse
     {
+        Gate::authorize('update-comment', $comment);
+
         $comment->update($this->validateComment($request));
 
         return redirect()->route('articles.show', $article)->withFragment('comments')
@@ -33,6 +40,8 @@ class CommentController extends Controller
 
     public function destroy(Article $article, Comment $comment): RedirectResponse
     {
+        Gate::authorize('delete-comment', $comment);
+
         $comment->delete();
 
         return redirect()->route('articles.show', $article)->withFragment('comments')
