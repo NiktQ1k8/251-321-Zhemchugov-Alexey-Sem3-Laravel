@@ -2,6 +2,7 @@ name: laravel-news
 
 services:
   app:
+    image: laravel-news-app
     build:
       context: .
       dockerfile: docker/Dockerfile
@@ -13,6 +14,23 @@ services:
       - vendor:/var/www/html/vendor
       - database:/var/lib/laravel
     command: php artisan serve --host=0.0.0.0 --port=8000
+
+  worker:
+    image: laravel-news-app
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: app
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 75s
+    depends_on:
+      - app
+    volumes:
+      - .:/var/www/html
+      - vendor:/var/www/html/vendor
+      - database:/var/lib/laravel
+    command: php artisan queue:work --sleep=3 --tries=3 --backoff=30 --timeout=60
 
   frontend:
     build:
