@@ -39,6 +39,34 @@
 
 Просмотры статей записываются в `article_views` через middleware: учитывается каждый успешный GET страницы статьи, включая повторные открытия из кеша. Списки, формы, HEAD и ошибки не считаются. URL сохраняется без query-параметров. Команда `app:send-daily-statistics` отправляет на `MAIL_MODERATOR_ADDRESS` число просмотров и существующих комментариев, созданных сегодня, включая ожидающие модерации. День определяется по `Europe/Moscow`. Письмо отправляется самой командой, без очереди.
 
+## Backend API
+
+JSON API доступен по `http://localhost:8000/api` параллельно с сайтом. Маршруты определены в `routes/api.php`, контроллеры — `app/Http/Controllers/API/`.
+
+| Метод | Путь | Назначение |
+| --- | --- | --- |
+| POST | `/api/signin` | Регистрация читателя: name, email, password; 201 |
+| POST | `/api/login` | Вход: email, password; 200 и Bearer-токен |
+| POST | `/api/logout` | Отзыв текущего Bearer-токена; 200 |
+| GET | `/api/articles` | Публичный список по 5, `?page=2`; 200 |
+| GET | `/api/articles/{id}` | Статья с одобренными комментариями; 200 |
+| POST | `/api/articles` | Создание модератором; 201 |
+| PUT/PATCH | `/api/articles/{id}` | Обновление модератором; 200 |
+| DELETE | `/api/articles/{id}` | Удаление модератором; 200 |
+| GET | `/api/galery/{id}` | Данные статьи с изображением; 200 |
+
+Заголовки: `Accept: application/json`, для JSON-тела `Content-Type: application/json`, для защищённых действий `Authorization: Bearer <token>`. Срок токена — `SESSION_LIFETIME` минут, сейчас 120; выход отзывает только текущий токен. Сессии и CSRF веб-форм для API не нужны. Неверный вход/нет токена — 401, нет прав — 403, запись отсутствует — 404, неверные поля — 422, превышен лимит входа 6/минуту — 429.
+
+Ответ списка: `articles` с `data`, `total` и ссылками страниц; одной статьи — `article`; действий — сообщение, при создании/обновлении также статья. Для PUT/PATCH обязательны name, body, published_at в формате YYYY-MM-DD; short_desc необязателен, изображения необязательны, но указываются парой из прежнего списка. Создание статьи сохраняет database-уведомления и ставит письмо/событие в очередь, как на сайте. GET статьи учитывается в просмотрах. Общие правила проверки полей и прав сохранения статьи находятся в `app/Http/Requests/SaveArticleRequest.php`; кеш и остальные действия сохраняют поведение веб-контроллера.
+
+Проверить публичный маршрут:
+
+```sh
+curl -i -H 'Accept: application/json' http://localhost:8000/api/articles
+```
+
+Локальная инструкция Newman/Postman и коллекция запросов: `docs/API_POSTMAN.md` (локальная инструкция) и `postman/Laravel_API.postman_collection.json` (коллекция в корне проекта). Шаблон настроек — `postman/local.example.postman_environment.json`; заполненная копия `postman/local.postman_environment.json` исключена из Git. API проверен через Newman в контейнере с отдельной тестовой SQLite; по выбору пользователя используется Newman в контейнере без установки графического Postman.
+
 ## Окружение
 
 Docker Engine и Docker Compose. PHP 8.4, Composer 2 и Node 24 работают в контейнерах; устанавливать их на компьютер не требуется.

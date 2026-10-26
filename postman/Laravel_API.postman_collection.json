@@ -1,0 +1,457 @@
+{
+  "info": {
+    "name": "ЛР №15 — Backend API",
+    "description": "Запросы API для Newman в контейнере или ручного Postman. Основной способ пользователя — Newman; см. docs/API_POSTMAN.md. Папка 01. Список только читает список. Создание статьи ставит настоящее письмо и событие в очередь. Реальные пароли/токены не экспортируйте.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api",
+      "type": "string"
+    },
+    {
+      "key": "article_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "published_at",
+      "value": "2026-10-27",
+      "type": "string"
+    },
+    {
+      "key": "reader_email",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reader_password",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "moderator_email",
+      "value": "moderator@example.test",
+      "type": "string"
+    },
+    {
+      "key": "moderator_password",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reader_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "moderator_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "created_article_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01. Список",
+      "item": [
+        {
+          "name": "01. Список статей",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/articles"
+          }
+        },
+        {
+          "name": "02. Вторая страница",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/articles?page=2"
+          }
+        }
+      ]
+    },
+    {
+      "name": "02. Статья и галерея",
+      "item": [
+        {
+          "name": "03. Просмотр статьи",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/articles/{{article_id}}"
+          }
+        },
+        {
+          "name": "04. Галерея статьи",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/galery/{{article_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "03. Читатель",
+      "item": [
+        {
+          "name": "05. Регистрация читателя",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/signin",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Читатель API\",\n  \"email\": \"{{reader_email}}\",\n  \"password\": \"{{reader_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "06. Вход читателя",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{reader_email}}\",\n  \"password\": \"{{reader_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) { pm.collectionVariables.set(\"reader_token\", pm.response.json().token); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07. Создание читателем — запрет 403",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/articles",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Статья из API\",\n  \"short_desc\": \"Проверка лабораторной №15\",\n  \"body\": \"Текст новой статьи.\",\n  \"published_at\": \"{{published_at}}\",\n  \"preview_image\": \"preview.jpg\",\n  \"full_image\": \"full.jpeg\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{reader_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "08. Выход читателя",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/logout",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{reader_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04. Модератор",
+      "item": [
+        {
+          "name": "09. Вход модератора",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{moderator_email}}\",\n  \"password\": \"{{moderator_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) { pm.collectionVariables.set(\"moderator_token\", pm.response.json().token); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10. Создание статьи модератором",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/articles",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Статья из API\",\n  \"short_desc\": \"Проверка лабораторной №15\",\n  \"body\": \"Текст новой статьи.\",\n  \"published_at\": \"{{published_at}}\",\n  \"preview_image\": \"preview.jpg\",\n  \"full_image\": \"full.jpeg\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{moderator_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) { pm.collectionVariables.set(\"created_article_id\", pm.response.json().article.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11. Просмотр созданной статьи",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/articles/{{created_article_id}}"
+          }
+        },
+        {
+          "name": "12. Обновление статьи",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/articles/{{created_article_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Обновлённая статья из API\",\n  \"short_desc\": \"Проверка лабораторной №15\",\n  \"body\": \"Текст новой статьи.\",\n  \"published_at\": \"{{published_at}}\",\n  \"preview_image\": \"preview.jpg\",\n  \"full_image\": \"full.jpeg\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{moderator_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "13. Удаление созданной статьи",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/articles/{{created_article_id}}",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{moderator_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "14. Выход модератора",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/logout",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{moderator_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "15. Повторный выход — отозванный токен 401",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/logout",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{moderator_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

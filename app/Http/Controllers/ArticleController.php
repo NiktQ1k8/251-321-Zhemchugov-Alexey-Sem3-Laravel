@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\NewArticleEvent;
+use App\Http\Requests\SaveArticleRequest;
 use App\Jobs\VeryLongJob;
 use App\Models\Article;
 use App\Models\Role;
@@ -14,7 +15,6 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class ArticleController extends Controller
@@ -49,11 +49,9 @@ class ArticleController extends Controller
         return view('articles.create', ['article' => new Article(['published_at' => today()])]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(SaveArticleRequest $request): RedirectResponse
     {
-        Gate::authorize('create', Article::class);
-
-        $article = Article::create($this->validateArticle($request));
+        $article = Article::create($request->validated());
 
         foreach (Cache::get('articles.index.keys', []) as $key) {
             Cache::forget($key);
@@ -88,11 +86,9 @@ class ArticleController extends Controller
         return view('articles.edit', ['article' => $article]);
     }
 
-    public function update(Request $request, Article $article): RedirectResponse
+    public function update(SaveArticleRequest $request, Article $article): RedirectResponse
     {
-        Gate::authorize('update', $article);
-
-        $article->update($this->validateArticle($request));
+        $article->update($request->validated());
 
         Cache::flush();
 
@@ -117,31 +113,5 @@ class ArticleController extends Controller
         abort_unless($article->full_image, 404);
 
         return view('galery', ['article' => $article]);
-    }
-
-    private function validateArticle(Request $request): array
-    {
-        return $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'short_desc' => ['nullable', 'string', 'max:1000'],
-            'body' => ['required', 'string', 'max:20000'],
-            'published_at' => ['required', 'date_format:Y-m-d'],
-            'preview_image' => ['nullable', 'required_with:full_image', Rule::in(['preview.jpg', 'preview_2.jpg'])],
-            'full_image' => ['nullable', 'required_with:preview_image', Rule::in(['full.jpeg', 'full_2.jpeg'])],
-        ], [
-            'required' => 'Поле «:attribute» обязательно.',
-            'required_with' => 'Выберите и превью, и полное изображение.',
-            'string' => 'Поле «:attribute» должно быть строкой.',
-            'max' => 'Поле «:attribute» должно содержать не более :max символов.',
-            'date_format' => 'Укажите корректную дату публикации.',
-            'in' => 'Выберите изображение из списка.',
-        ], [
-            'name' => 'название',
-            'short_desc' => 'краткое описание',
-            'body' => 'текст статьи',
-            'published_at' => 'дата публикации',
-            'preview_image' => 'превью',
-            'full_image' => 'полное изображение',
-        ]);
     }
 }
