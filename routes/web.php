@@ -13,6 +13,7 @@ Route::pattern('comment', '[0-9]+');
 Route::get('/', [ArticleController::class, 'index'])->name('home');
 
 Route::resource('articles', ArticleController::class)
+    ->middlewareFor('show', 'record.article.view')
     ->middlewareFor(['create', 'store', 'edit', 'update', 'destroy'], 'auth:sanctum');
 
 Route::resource('articles.comments', CommentController::class)

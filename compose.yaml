@@ -32,6 +32,23 @@ services:
       - database:/var/lib/laravel
     command: php artisan queue:work --sleep=3 --tries=3 --backoff=30 --timeout=60
 
+  scheduler:
+    profiles: [scheduler]
+    image: laravel-news-app
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: app
+    init: true
+    restart: unless-stopped
+    depends_on:
+      - app
+    volumes:
+      - .:/var/www/html
+      - vendor:/var/www/html/vendor
+      - database:/var/lib/laravel
+    command: php artisan schedule:work
+
   frontend:
     build:
       context: .
