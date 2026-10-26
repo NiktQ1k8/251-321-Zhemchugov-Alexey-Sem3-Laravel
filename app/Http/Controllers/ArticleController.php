@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewArticleEvent;
 use App\Jobs\VeryLongJob;
 use App\Models\Article;
 use Illuminate\Http\RedirectResponse;
@@ -35,6 +36,7 @@ class ArticleController extends Controller
         $article = Article::create($this->validateArticle($request));
 
         VeryLongJob::dispatch($article);
+        NewArticleEvent::dispatch($article);
 
         return redirect()->route('articles.show', $article)
             ->with('status', 'Статья создана. Письмо модератору добавлено в очередь.');

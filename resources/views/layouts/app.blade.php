@@ -8,6 +8,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-800">
+        <div id="article-notifications"></div>
         <header class="border-b border-slate-200 bg-white">
             <div class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 py-5">
                 <a href="{{ route('home') }}" class="text-xl font-semibold text-slate-900">
