@@ -4,6 +4,7 @@ use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CommentModerationController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 Route::pattern('article', '[0-9]+');
@@ -37,6 +38,11 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum')->name('logout');
+
+Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])
+    ->whereUuid('notification')
+    ->middleware('auth:sanctum')
+    ->name('notifications.read');
 
 Route::get('/about', function () {
     return view('about');

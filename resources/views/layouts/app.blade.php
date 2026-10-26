@@ -14,10 +14,11 @@
                 <a href="{{ route('home') }}" class="text-xl font-semibold text-slate-900">
                     {{ config('app.name') }}
                 </a>
-                <nav aria-label="Основная навигация" class="flex flex-wrap items-center gap-6 text-sm font-medium">
+                <nav aria-label="Основная навигация" class="relative flex flex-wrap items-center gap-6 text-sm font-medium">
                     <a href="{{ route('home') }}" class="hover:text-blue-700" @if(request()->routeIs('home')) aria-current="page" @endif>Главная</a>
                     <a href="{{ route('about') }}" class="hover:text-blue-700" @if(request()->routeIs('about')) aria-current="page" @endif>О нас</a>
                     <a href="{{ route('contacts') }}" class="hover:text-blue-700" @if(request()->routeIs('contacts')) aria-current="page" @endif>Контакты</a>
+                    @include('notifications._dropdown')
                     @can('create', \App\Models\Article::class)
                         <a href="{{ route('articles.create') }}" class="hover:text-blue-700" @if(request()->routeIs('articles.create')) aria-current="page" @endif>Создать новость</a>
                     @endcan

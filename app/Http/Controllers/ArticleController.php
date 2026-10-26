@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use App\Events\NewArticleEvent;
 use App\Jobs\VeryLongJob;
 use App\Models\Article;
+use App\Models\Role;
+use App\Models\User;
+use App\Notifications\NewArticleNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -34,6 +38,9 @@ class ArticleController extends Controller
         Gate::authorize('create', Article::class);
 
         $article = Article::create($this->validateArticle($request));
+
+        $readers = User::whereHas('role', fn ($query) => $query->where('name', Role::READER))->get();
+        Notification::send($readers, new NewArticleNotification($article));
 
         VeryLongJob::dispatch($article);
         NewArticleEvent::dispatch($article);
