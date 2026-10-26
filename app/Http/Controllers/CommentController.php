@@ -6,6 +6,7 @@ use App\Models\Article;
 use App\Models\Comment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
@@ -18,6 +19,8 @@ class CommentController extends Controller
         $comment = new Comment($this->validateComment($request));
         $comment->user()->associate($request->user());
         $article->comments()->save($comment);
+
+        Cache::forget('articles.show.'.$article->id);
 
         return redirect()->route('articles.show', $article)->withFragment('comments')
             ->with('status', 'Комментарий добавлен и ожидает модерации.');
@@ -43,6 +46,8 @@ class CommentController extends Controller
 
         $comment->save();
 
+        Cache::forget('articles.show.'.$article->id);
+
         return redirect()->route('articles.show', $article)->withFragment('comments')
             ->with('status', $textChanged ? 'Комментарий обновлён и ожидает модерации.' : 'Комментарий не изменён.');
     }
@@ -52,6 +57,8 @@ class CommentController extends Controller
         Gate::authorize('delete-comment', $comment);
 
         $comment->delete();
+
+        Cache::forget('articles.show.'.$article->id);
 
         return redirect()->route('articles.show', $article)->withFragment('comments')
             ->with('status', 'Комментарий удалён.');

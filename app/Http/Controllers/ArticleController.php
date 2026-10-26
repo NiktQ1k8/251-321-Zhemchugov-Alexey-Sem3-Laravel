@@ -10,6 +10,8 @@ use App\Models\User;
 use App\Notifications\NewArticleNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
@@ -17,11 +19,25 @@ use Illuminate\View\View;
 
 class ArticleController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         Gate::authorize('viewAny', Article::class);
 
-        $articles = Article::query()->orderByDesc('published_at')->orderByDesc('id')->paginate(5);
+        $page = LengthAwarePaginator::resolveCurrentPage();
+        $key = 'articles.index.'.$page;
+
+        $articles = Cache::remember($key, 600, function () use ($page, $key) {
+            // Реестр нужен, чтобы после создания статьи удалить все страницы списка.
+            $keys = Cache::get('articles.index.keys', []);
+            $keys[] = $key;
+            Cache::forever('articles.index.keys', array_unique($keys));
+
+            return Article::query()->orderByDesc('published_at')->orderByDesc('id')
+                ->paginate(5, ['*'], 'page', $page);
+        });
+
+        // Главная и /articles используют одни данные, но свои ссылки пагинации.
+        $articles->withPath($request->url());
 
         return view('articles.index', ['articles' => $articles]);
     }
@@ -39,6 +55,11 @@ class ArticleController extends Controller
 
         $article = Article::create($this->validateArticle($request));
 
+        foreach (Cache::get('articles.index.keys', []) as $key) {
+            Cache::forget($key);
+        }
+        Cache::forget('articles.index.keys');
+
         $readers = User::whereHas('role', fn ($query) => $query->where('name', Role::READER))->get();
         Notification::send($readers, new NewArticleNotification($article));
 
@@ -53,7 +74,9 @@ class ArticleController extends Controller
     {
         Gate::authorize('view', $article);
 
-        $article->load(['comments' => fn ($query) => $query->where('is_approved', true)->with('user')->latest('id')]);
+        $article = Cache::rememberForever('articles.show.'.$article->id, fn () => $article->load([
+            'comments' => fn ($query) => $query->where('is_approved', true)->with('user:id,name')->latest('id'),
+        ]));
 
         return view('articles.show', ['article' => $article]);
     }
@@ -71,6 +94,8 @@ class ArticleController extends Controller
 
         $article->update($this->validateArticle($request));
 
+        Cache::flush();
+
         return redirect()->route('articles.show', $article)->with('status', 'Статья обновлена.');
     }
 
@@ -79,6 +104,8 @@ class ArticleController extends Controller
         Gate::authorize('delete', $article);
 
         $article->delete();
+
+        Cache::flush();
 
         return redirect()->route('home')->with('status', 'Статья удалена.');
     }

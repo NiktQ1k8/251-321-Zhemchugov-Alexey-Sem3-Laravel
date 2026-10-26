@@ -1,5 +1,10 @@
 <?php
 
+use App\Models\Article;
+use App\Models\Comment;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 
 return [
@@ -131,6 +136,13 @@ return [
     |
     */
 
-    'serializable_classes' => false,
+    // Только классы публичных данных статей и пагинации, без произвольных объектов.
+    'serializable_classes' => [
+        Article::class,
+        Comment::class,
+        User::class,
+        Collection::class,
+        LengthAwarePaginator::class,
+    ],
 
 ];
